@@ -89,7 +89,7 @@ class MessageTest extends TestCase
     {
         $message = new Message();
 
-        $this->assertEquals('Bar', $message->withHeader('Foo', 'Bar')->getHeader('foo'));
+        $this->assertEquals(['Bar'], $message->withHeader('Foo', 'Bar')->getHeader('foo'));
     }
 
     public function testWithHeaderReturnsANewInstance()
@@ -103,14 +103,14 @@ class MessageTest extends TestCase
     {
         $message = new Message('1.1', ['Foo' => 'Bar']);
 
-        $this->assertEquals('Test', $message->withHeader('Foo', 'Test')->getHeader('Foo'));
+        $this->assertEquals(['Test'], $message->withHeader('Foo', 'Test')->getHeader('Foo'));
     }
 
     public function testWithHeaderOverwritesAnExistingHeaderInACaseInsensitiveManner()
     {
         $message = new Message('1.1', ['Foo' => 'Bar']);
 
-        $this->assertEquals('Test', $message->withHeader('foo', 'Test')->getHeader('Foo'));
+        $this->assertEquals(['Test'], $message->withHeader('foo', 'Test')->getHeader('Foo'));
     }
 
     public function testWithAddedHeaderReturnsANewInstance()
@@ -125,7 +125,7 @@ class MessageTest extends TestCase
         $message = new Message('1.1', ['Foo' => 'Bar']);
 
         $this->assertEquals(
-            'Test',
+            ['Test'],
             $message->withAddedHeader('Test', 'Test')->getHeader('Test')
         );
     }
@@ -166,4 +166,31 @@ class MessageTest extends TestCase
 
         $this->assertEquals($body, $message->withBody($body)->getBody());
     }
+
+    public function testGetHeaderReturnsASingleStringForUserAgent()
+    {
+        $userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) ' .
+            'Chrome/76.0.3809.100 Safari/537.36';
+
+        $message = new Message('1.1', [
+            'User-Agent' =>
+            $userAgent
+        ]);
+
+        $this->assertEquals([$userAgent], $message->getHeader('User-Agent'));
+    }
+
+    public function testGetHeaderReturnsASingleStringForLowerCaseUserAgentWhenProvidedInUpperCase()
+    {
+        $userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) ' .
+            'Chrome/76.0.3809.100 Safari/537.36';
+
+        $message = new Message('1.1', [
+            'user-agent' =>
+                $userAgent
+        ]);
+
+        $this->assertEquals([$userAgent], $message->getHeader('User-Agent'));
+    }
+
 }

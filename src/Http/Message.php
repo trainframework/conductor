@@ -74,7 +74,8 @@ class Message implements MessageInterface
     public function withHeader($name, $value)
     {
         $headers = clone $this->headers;
-        $headers->offsetSet($name, $value);
+        $parts = $this->getHeaderparts($name, $value);
+        $headers->offsetSet($name, $parts);
 
         return new static(
             $this->protocolVersion,
@@ -88,7 +89,8 @@ class Message implements MessageInterface
         $headers = clone $this->headers;
 
         if (!$this->hasHeader($name)) {
-            $headers->offsetSet($name, $value);
+            $parts = $this->getHeaderParts($name, $value);
+            $headers->offsetSet($name, $parts);
         } else {
             $headerValues = $headers->offsetGet($name);
             $headerValues[] = $value;
@@ -133,7 +135,7 @@ class Message implements MessageInterface
         return preg_match('/([0-9])\.([0-9])/', $protocolVersion);
     }
 
-    public function parseHeaderLines(array $headerLines)
+    protected function parseHeaderLines(array $headerLines)
     {
         $headers = [];
         foreach ($headerLines as $headerName => $headerLine) {
@@ -145,9 +147,10 @@ class Message implements MessageInterface
         return $headers;
     }
 
-    public function getHeaderParts($headerName, $headerLine)
+    protected function getHeaderParts($headerName, $headerLine)
     {
-        if (!in_array($headerName, self::NOT_COMMA_SEPARATED)) {
+        $isHeaderInCommaExclusionList = preg_grep('/' . preg_quote($headerName) . '/i', self::NOT_COMMA_SEPARATED);
+        if (!$isHeaderInCommaExclusionList) {
             return explode(',', $headerLine);
         }
 
