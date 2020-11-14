@@ -8,7 +8,7 @@ use Psr\Http\Message\StreamInterface;
 
 class MessageTest extends TestCase
 {
-    private $message;
+    private Message $message;
 
     public function setUp()
     {
